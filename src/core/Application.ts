@@ -169,6 +169,8 @@ module OX {
             var compress:any = require('compression');
             this.express.use(compress());
             // Setting the this.express router and static folder
+            var favicon:any = require('serve-favicon');
+            this.express.use(favicon(this.path.join(this.root, './public/images/favicon.ico')));
             this.express.use(express.static(this.path.join(this.root, './public')));
         }
 
