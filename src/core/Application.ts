@@ -123,7 +123,7 @@ module OX {
 
             this.express.set('env', this.env);
             this.express.set('port', this.port);
-            this.express.set('views', this.path.join(this.root, './application/views'));
+            this.express.set('views', this.path.join(this.root, '../application/views'));
             this.express.set('view engine', 'ejs');
             // Showing stack errors
             this.express.set('showStackError', true);
@@ -170,8 +170,8 @@ module OX {
             this.express.use(compress());
             // Setting the this.express router and static folder
             var favicon:any = require('serve-favicon');
-            this.express.use(favicon(this.path.join(this.root, './public/images/favicon.ico')));
-            this.express.use(express.static(this.path.join(this.root, './public')));
+            this.express.use(favicon(this.path.join(this.root, '../public/images/favicon.ico')));
+            this.express.use(express.static(this.path.join(this.root, '../public')));
         }
 
         private buildRoutes() {
