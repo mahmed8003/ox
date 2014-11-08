@@ -1,0 +1,57 @@
+{
+  "name": "ox",
+  "version": "0.1.0",
+  "description": "OX: A fullstack JavaScript framework powered by ExpressJS, NodeJS and Typescript",
+  "private": false,
+  "author": "Muhammad Ahmed <mahmed8003@gmail.com>",
+  "contributors": "https://github.com/mahmed8003/ox/graphs/contributors",
+  "license": "MIT",
+  "homepage": "http://mahmed8003.github.io/ox",
+  "keywords": [
+    "oop",
+    "mvc",
+    "express",
+    "framework",
+    "typescript",
+    "node",
+    "rest",
+    "restful",
+    "app",
+    "api"
+  ],
+  "main": "./build/OX.js",
+  "scripts": {
+    "prepublish": "npm prune",
+    "start": "grunt build_framework"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mahmed8003/ox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mahmed8003/ox/issues"
+  },
+  "dependencies": {
+    "body-parser": "1.6.5",
+    "compression": "1.0.11",
+    "connect-flash": "0.1.1",
+    "cookie-parser": "1.3.2",
+    "ejs": "1.0.0",
+    "express": "4.8.5",
+    "express-session": "1.7.6",
+    "helmet": "0.4.0",
+    "method-override": "2.1.3",
+    "morgan": "1.2.3",
+    "on-finished": "2.1.1",
+    "underscore": "1.7.0"
+  },
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-file-append": "0.0.5",
+    "grunt-typescript": "0.3.7"
+  },
+  "engines": {
+    "node": ">= 0.10.0",
+    "npm": ">= 1.4.0"
+  }
+}
