@@ -2,11 +2,38 @@
 
 module OX {
 
-    export class Log {
+    export var Log:Logger;
 
-        private static log:any;
+    export interface Logger {
+        trace(error:Error, format?:any, ...params:any[]):void;
+        trace(buffer:Buffer, format?:any, ...params:any[]):void;
+        trace(obj:Object, format?:any, ...params:any[]):void;
+        trace(format:string, ...params:any[]):void;
+        debug(error:Error, format?:any, ...params:any[]):void;
+        debug(buffer:Buffer, format?:any, ...params:any[]):void;
+        debug(obj:Object, format?:any, ...params:any[]):void;
+        debug(format:string, ...params:any[]):void;
+        info(error:Error, format?:any, ...params:any[]):void;
+        info(buffer:Buffer, format?:any, ...params:any[]):void;
+        info(obj:Object, format?:any, ...params:any[]):void;
+        info(format:string, ...params:any[]):void;
+        warn(error:Error, format?:any, ...params:any[]):void;
+        warn(buffer:Buffer, format?:any, ...params:any[]):void;
+        warn(obj:Object, format?:any, ...params:any[]):void;
+        warn(format:string, ...params:any[]):void;
+        error(error:Error, format?:any, ...params:any[]):void;
+        error(buffer:Buffer, format?:any, ...params:any[]):void;
+        error(obj:Object, format?:any, ...params:any[]):void;
+        error(format:string, ...params:any[]):void;
+        fatal(error:Error, format?:any, ...params:any[]):void;
+        fatal(buffer:Buffer, format?:any, ...params:any[]):void;
+        fatal(obj:Object, format?:any, ...params:any[]):void;
+        fatal(format:string, ...params:any[]):void;
+    }
 
-        public static _configLogger(config:LoggerInfo) {
+    export class BunyanLogger {
+
+        public createLogger(config:LoggerInfo) {
 
             var streams = [];
             config.streamsInfo.forEach((streamInfo)=> {
@@ -45,61 +72,11 @@ module OX {
 
 
             var bunyan:any = require('bunyan');
-            this.log = bunyan.createLogger({
+            OX.Log = bunyan.createLogger({
                 name: config.name,
                 streams: streams
             });
         }
-
-
-        public static debug(obj:any, message:string):void {
-            this.log.debug(obj, message);
-        }
-
-        public static debug(message:string):void {
-            this.log.debug(message);
-        }
-
-        public static error(obj:any, message:string):void {
-            this.log.error(obj, message);
-        }
-
-        public static error(message:string):void {
-            this.log.error(message);
-        }
-
-        public static fatal(obj:any, message:string):void {
-            this.log.fatal(obj, message);
-        }
-
-        public static fatal(message:string):void {
-            this.log.fatal(message);
-        }
-
-        public static info(obj:any, message:string):void {
-            this.log.info(obj, message);
-        }
-
-        public static info(message:string):void {
-            this.log.info(message);
-        }
-
-        public static trace(obj:any, message:string):void {
-            this.log.trace(obj, message);
-        }
-
-        public static trace(message:string):void {
-            this.log.trace(message);
-        }
-
-        public static warn(obj:any, message:string):void {
-            this.log.warn(obj, message);
-        }
-
-        public static warn(message:string):void {
-            this.log.warn(message);
-        }
-
 
     }
 }

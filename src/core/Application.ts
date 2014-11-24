@@ -77,7 +77,8 @@ module OX {
             this.uLoggerConfig.config(cfg);
 
             var loggerInfo:LoggerInfo = cfg[this.env];
-            Log._configLogger(loggerInfo);
+            var logger = new BunyanLogger();
+            logger.createLogger(loggerInfo);
         }
 
         private configDatabase():void {
