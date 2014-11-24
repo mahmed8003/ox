@@ -115,8 +115,10 @@ module OX {
             this.configRoutes();
             this.buildRoutes();
 
-            this.express.listen(this.port);
-            console.log('OX is running at port ' + this.port + ' in ' + this.env + ' environment');
+            var http:any = require('http');
+            http.createServer(this.express).listen(this.port, function() {
+                Log.info('OX is running at port ' + this.port + ' in ' + this.env + ' environment');
+            });
         }
 
         public addModel(model:typeof Model):void {
@@ -153,16 +155,12 @@ module OX {
                 next();
             });
 
-            var logger:any = require('morgan');
+
             // Environment dependent middleware
             if (this.env === 'development') {
-                // Enable logger (morgan)
-                this.express.use(logger('dev'));
                 // Disable views cache
                 this.express.set('view cache', false);
             } else if (this.env === 'production') {
-                // Enable logger (morgan)
-                this.express.use(logger('tiny'));
                 // Enable views cache
                 this.express.locals.cache = 'memory';
             }
@@ -206,10 +204,8 @@ module OX {
                 if (!controller.isConfigured) {
                     controller.configure();
                     controller.isConfigured = true;
-                    console.log('i am configured');
-                }
 
-                console.log(controller);
+                }
 
 
                 var method:string = route.method;
