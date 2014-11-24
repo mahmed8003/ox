@@ -115,9 +115,10 @@ module OX {
             this.configRoutes();
             this.buildRoutes();
 
+            var self = this;
             var http:any = require('http');
             http.createServer(this.express).listen(this.port, function() {
-                Log.info('OX is running at port ' + this.port + ' in ' + this.env + ' environment');
+                Log.info('OX is running at port ' + self.port + ' in ' + self.env + ' environment');
             });
         }
 
