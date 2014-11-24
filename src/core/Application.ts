@@ -31,7 +31,8 @@ module OX {
         private uDatabaseConfig:DatabaseConfig;
         private uExpressConfig:ExpressConfig;
         private uGlobalFiltersConfig:GlobalFiltersConfig;
-        private uRoutesConfig:IRoutesConfig;
+        private uRoutesConfig:RoutesConfig;
+        private uLoggerConfig:LoggerConfig;
 
         //
         private path:any = require('path');
@@ -47,6 +48,10 @@ module OX {
             this.globalFiltersTypes = [];
         }
 
+        public setLoggerConfig(config:LoggerConfig):void {
+            this.uLoggerConfig = config;
+        }
+
         public setDatabaseConfig(config:DatabaseConfig):void {
             this.uDatabaseConfig = config;
         }
@@ -59,8 +64,20 @@ module OX {
             this.uGlobalFiltersConfig = config;
         }
 
-        public setRoutesConfig(config:IRoutesConfig):void {
+        public setRoutesConfig(config:RoutesConfig):void {
             this.uRoutesConfig = config;
+        }
+
+        private configLogger():void {
+            var cfg = {
+                development: null,
+                test: null,
+                production: null
+            };
+            this.uLoggerConfig.config(cfg);
+
+            var loggerInfo:LoggerInfo = cfg[this.env];
+            Log._configLogger(loggerInfo);
         }
 
         private configDatabase():void {
@@ -89,6 +106,7 @@ module OX {
         }
 
         public giddup() {
+            this.configLogger();
             this.configDatabase();
             this.buildExpress();
             this.configExpress();
@@ -118,6 +136,7 @@ module OX {
 
 
         private buildExpress() {
+            var bunyan:any = require('bunyan');
             var express = require('express');
             this.express = express();
 
@@ -127,6 +146,11 @@ module OX {
             this.express.set('view engine', 'ejs');
             // Showing stack errors
             this.express.set('showStackError', true);
+
+            this.express.use(function(req, res, next){
+                Log.info({ req: bunyan.stdSerializers.req(req) }, 'start');
+                next();
+            });
 
             var logger:any = require('morgan');
             // Environment dependent middleware

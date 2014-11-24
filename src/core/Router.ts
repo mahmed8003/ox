@@ -43,7 +43,7 @@ module OX {
         }
     }
 
-    export interface IRoutesConfig {
+    export interface RoutesConfig {
         config(router:Router):void;
     }
 
