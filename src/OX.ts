@@ -8,6 +8,7 @@
 /// <reference path="./core/BunyanLogger.ts" />
 /// <reference path="./core/Controller.ts" />
 /// <reference path="./core/Model.ts" />
+/// <reference path="./core/ModelCacheManager.ts" />
 /// <reference path="./core/Request.ts" />
 /// <reference path="./core/Response.ts" />
 /// <reference path="./core/Router.ts" />

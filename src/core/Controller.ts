@@ -34,7 +34,8 @@ module OX {
     export class Controller {
         static filtersInfo:CFilterInfo[] = [];
         static isConfigured:boolean = false;
-        context:AppContext;
+        private context:AppContext;
+        private modelCacheMgr:ModelCacheManager;
 
         public static configure() {
             console.log('I am config from controller');
@@ -47,12 +48,13 @@ module OX {
             return filterInfo;
         }
 
-        public init(context:AppContext) {
+        public init(context:AppContext, modelCacheMgr:ModelCacheManager) {
             this.context = context;
+            this.modelCacheMgr = modelCacheMgr;
         }
 
-        public loadModel(name:typeof Model):Model {
-            return this.context.getModel(name);
+        public getModel(model:typeof Model):Model {
+            return this.modelCacheMgr.getModel(model);
         }
     }
 }

@@ -8,7 +8,7 @@ module OX {
         port:number;
         dbConfig:DBConfig;
         db?:any;
-        getModel(name:typeof Model): Model;
+        getModel(name:typeof Model): typeof Model;
     }
 
     export class Application implements AppContext {
@@ -35,6 +35,7 @@ module OX {
         private uLoggerConfig:LoggerConfig;
 
         //
+        private _:any = require('underscore');
         private path:any = require('path');
 
         constructor(root:string, env:string, port:number) {
@@ -94,6 +95,12 @@ module OX {
             }
         }
 
+        private configModels():void {
+            this.models.forEach((m) => {
+                m.configure();
+            });
+        }
+
         private configExpress():void {
             this.uExpressConfig.config(this.express);
         }
@@ -123,21 +130,13 @@ module OX {
         }
 
         public addModel(model:typeof Model):void {
-            model.configure();
             this.models.push(model);
         }
 
-        public getModel(model:typeof Model):Model {
-            this.models.forEach((m) => {
-                if (model == m) {
-                    var modelObj:Model = new m();
-                    modelObj.init(this);
-                    return modelObj;
-                }
-            });
-            return null;
+        public getModel(model:typeof Model):typeof Model {
+            var modelClass = this._.find(this.models, function(m){ return m == model});
+            return modelClass;
         }
-
 
         private buildExpress() {
             var bunyan:any = require('bunyan');
@@ -150,6 +149,12 @@ module OX {
             this.express.set('view engine', 'ejs');
             // Showing stack errors
             this.express.set('showStackError', true);
+
+            this.express.use(function(req, res, next){
+                var modelCacheMgr = new ModelCacheManager(this);
+                req._modelCacheMgr = modelCacheMgr;
+                next();
+            });
 
             this.express.use(function(req, res, next){
                 Log.info({ req: bunyan.stdSerializers.req(req) }, 'start');
@@ -213,9 +218,9 @@ module OX {
                 var action:string = route.routeData.action;
                 var handlers:any = this.getRequestHandlersForAction(controller, action);
 
-                var finalAction = function (req:Express.Request, res:Express.Response) {
+                var finalAction = function (req, res) {
                     var controllerObj = new controller();
-                    controllerObj.init(this);
+                    controllerObj.init(this, req._modelCacheMgr);
                     controllerObj[action](req, res);
                 }
 
@@ -252,6 +257,8 @@ module OX {
                 };
                 // create object of filter type and call before function
                 var filterObj = new filterType();
+                var treq:any = req; // just fooling the editor, otherwise it starts to highlight _modelCacheMgr
+                filterObj.init(this, treq._modelCacheMgr);
                 filterObj.before(ctx);
 
                 var onFinished:any = require('on-finished');
@@ -285,8 +292,8 @@ module OX {
             t = this.getRequestHandlersForFilterTypes(filterTypes);
             requestHandlers.concat(t);
 
-            var _:any = require('underscore');
-            requestHandlers = _.flatten(requestHandlers);
+
+            requestHandlers = this._.flatten(requestHandlers);
 
             return requestHandlers;
         }
