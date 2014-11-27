@@ -15,7 +15,7 @@ module OX {
 
         public getModel(model:typeof Model):Model {
 
-            var modelIns:Model = _.find(this.modelsIns, function(modelIns) { return modelIns instanceof Model});
+            var modelIns:Model = this._.find(this.modelsIns, function(modelIns) { return modelIns instanceof Model});
             if(modelIns != undefined) {
                 return modelIns;
             }

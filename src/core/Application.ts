@@ -116,6 +116,7 @@ module OX {
         public giddup() {
             this.configLogger();
             this.configDatabase();
+            this.configModels();
             this.buildExpress();
             this.configExpress();
             this.configGlobalFilters();
