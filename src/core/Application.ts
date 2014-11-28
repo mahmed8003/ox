@@ -126,7 +126,7 @@ module OX {
 
             var self = this;
             var http:any = require('http');
-            http.createServer(this.express).listen(this.port, function() {
+            http.createServer(this.express).listen(this.port, function () {
                 Log.info('OX is running at port ' + self.port + ' in ' + self.env + ' environment');
             });
         }
@@ -137,7 +137,9 @@ module OX {
         }
 
         public getModel(model:typeof Model):typeof Model {
-            var modelClass = this._.find(this.models, function(m){ return m == model});
+            var modelClass = this._.find(this.models, function (m) {
+                return m == model
+            });
             return modelClass;
         }
 
@@ -153,7 +155,7 @@ module OX {
             this.express.set('showStackError', true);
 
             var self = this;
-            this.express.use(function(req, res, next){
+            this.express.use(function (req, res, next) {
                 var modelCacheMgr = new ModelCacheManager(self);
                 req._modelCacheMgr = modelCacheMgr;
                 next();
@@ -162,7 +164,9 @@ module OX {
             var morgan:any = require("morgan");
             this.express.use(morgan('dev', {
                 stream: {
-                    write: function(str) { Log.debug(str); }
+                    write: function (str) {
+                        Log.debug(str);
+                    }
                 }
             }));
 
@@ -210,7 +214,7 @@ module OX {
 
         private buildRoutes() {
             var self = this;
-            return this.router.routes.forEach((route) => {
+            this.router.routes.forEach((route) => {
 
                 var controller:typeof Controller = route.routeData.controller;
                 if (!controller.isConfigured) {
@@ -239,6 +243,33 @@ module OX {
                 } else if (method == 'DELETE') {
                     this.express.delete(route.path, handlers, finalAction);
                 }
+            });
+
+            // Assume 'not found' in the error msgs is a 404. this is somewhat silly, but valid, you can do whatever you like, set properties, use instanceof etc.
+            this.express.use(function (err, req, res, next) {
+                // If the error object doesn't exists
+                if (!err)
+                    return next();
+
+                // Log it
+                Log.error(err.stack);
+
+                // Error page
+                res.status(500).render('error', {
+                    message: err.message,
+                    error: err.stack,
+                    title: 'error'
+                });
+            });
+
+            // Assume 404 since no middleware responded
+            this.express.use(function (req, res) {
+                res.status(404);
+                res.render('error', {
+                    message: 'Page not found',
+                    error: {},
+                    title: 'error'
+                });
             });
         }
 
@@ -306,6 +337,6 @@ module OX {
     }
 
     export interface RequestHandler {
-        (req: Request, res: Response, next: Function): any;
+        (req:Request, res:Response, next:Function): any;
     }
 }
