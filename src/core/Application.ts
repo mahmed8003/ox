@@ -159,7 +159,13 @@ module OX {
                 next();
             });
 
-            this.express.use(require('morgan')({ "stream": Log.stream }));
+            var morgan:any = require("morgan");
+            this.express.use(morgan({
+                "format": 'default',
+                'stream': {
+                    write: function(str) { Log.debug(str); }
+                }
+            }));
 
 
             // Environment dependent middleware
