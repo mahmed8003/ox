@@ -38,7 +38,6 @@ module OX {
         private modelCacheMgr:ModelCacheManager;
 
         public static configure() {
-            console.log('I am config from controller');
         }
 
         public static addFilter(filterType:typeof ActionFilter):CFilterInfo {
