@@ -78,8 +78,8 @@ module OX {
             };
             this.uLoggerConfig.config(cfg);
 
-            var loggerInfo:LoggerInfo = cfg[this.env];
-            var logger = new BunyanLogger();
+            var loggerInfo = cfg[this.env];
+            var logger = new WinstonLogger();
             logger.createLogger(loggerInfo);
         }
 
@@ -160,10 +160,7 @@ module OX {
                 next();
             });
 
-            this.express.use(function(req, res, next){
-                Log.info({ req: bunyan.stdSerializers.req(req) }, 'start');
-                next();
-            });
+            this.express.use(require('morgan')({ "stream": Log.stream }));
 
 
             // Environment dependent middleware
