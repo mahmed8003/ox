@@ -160,9 +160,8 @@ module OX {
             });
 
             var morgan:any = require("morgan");
-            this.express.use(morgan({
-                "format": 'default',
-                'stream': {
+            this.express.use(morgan('dev', {
+                stream: {
                     write: function(str) { Log.debug(str); }
                 }
             }));
