@@ -142,7 +142,6 @@ module OX {
         }
 
         private buildExpress() {
-            var bunyan:any = require('bunyan');
             var express = require('express');
             this.express = express();
 
