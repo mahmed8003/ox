@@ -38,6 +38,7 @@ module OX {
         private _:any = require('underscore');
         private path:any = require('path');
 
+
         constructor(root:string, env:string, port:number) {
             this.root = root;
             this.env = env;
@@ -130,8 +131,9 @@ module OX {
             });
         }
 
-        public addModel(model:typeof Model):void {
+        public addModel(model:typeof Model):Application {
             this.models.push(model);
+            return this;
         }
 
         public getModel(model:typeof Model):typeof Model {
@@ -151,8 +153,9 @@ module OX {
             // Showing stack errors
             this.express.set('showStackError', true);
 
+            var self = this;
             this.express.use(function(req, res, next){
-                var modelCacheMgr = new ModelCacheManager(this);
+                var modelCacheMgr = new ModelCacheManager(self);
                 req._modelCacheMgr = modelCacheMgr;
                 next();
             });
@@ -205,6 +208,7 @@ module OX {
         }
 
         private buildRoutes() {
+            var self = this;
             return this.router.routes.forEach((route) => {
 
                 var controller:typeof Controller = route.routeData.controller;
@@ -221,7 +225,7 @@ module OX {
 
                 var finalAction = function (req, res) {
                     var controllerObj = new controller();
-                    controllerObj.init(this, req._modelCacheMgr);
+                    controllerObj.init(self, req._modelCacheMgr);
                     controllerObj[action](req, res);
                 }
 
@@ -249,7 +253,7 @@ module OX {
 
 
         private getRequestHandlersForFilterType(filterType:typeof ActionFilter):RequestHandler {
-
+            var self = this;
             var requestHandler = function (req:Request, res:Response, next:any) {
                 var ctx = {
                     request: req,
@@ -259,7 +263,7 @@ module OX {
                 // create object of filter type and call before function
                 var filterObj = new filterType();
                 var treq:any = req; // just fooling the editor, otherwise it starts to highlight _modelCacheMgr
-                filterObj.init(this, treq._modelCacheMgr);
+                filterObj.init(self, treq._modelCacheMgr);
                 filterObj.before(ctx);
 
                 var onFinished:any = require('on-finished');
