@@ -99,7 +99,7 @@ module OX {
     export class WinstonLogger {
 
         public createLogger(config:LoggerOptions) {
-            var transports:any[];
+            var transports:any[] = [];
             var winston:any = require('winston');
 
             config.transports.forEach((t) => {
