@@ -20,107 +20,115 @@ module OX {
         error(msg:string, meta:any, callback?:(err:Error, level:string, msg:string, meta:any) => void): LoggerInstance;
         error(msg:string, callback?:(err:Error, level:string, msg:string, meta:any) => void): LoggerInstance;
 
-        query(options:QueryOptions, callback?:(err:Error, results:any) => void): any;
-        query(callback:(err:Error, results:any) => void): any;
+
         stream(options?:any): NodeJS.ReadableStream;
         close(): void;
-        handleExceptions(...transports:TransportInstance[]): void;
-        unhandleExceptions(...transports:TransportInstance[]): void;
-        add(transport:TransportInstance, options?:TransportOptions, created?:boolean): LoggerInstance;
-        addRewriter(rewriter:TransportInstance): TransportInstance[];
+
         clear(): void;
-        remove(transport:TransportInstance): LoggerInstance;
-        startTimer(): ProfileHandler;
-        profile(id:string, msg?:string, meta?:any, callback?:(err:Error, level:string, msg:string, meta:any) => void): LoggerInstance;
-
-        setLevels(target:any): any;
-        cli(): LoggerInstance;
-    }
-
-    export interface LoggerOptions {
-        transports?: TransportInstance[];
-        rewriters?: TransportInstance[];
-        exceptionHandlers?: TransportInstance[];
-        handleExceptions?: boolean;
-
-        /**
-         * @type {(boolean|(err: Error) => void)}
-         */
-        exitOnError?: any;
-    }
-
-    export interface TransportStatic {
-        new (options?:TransportOptions): TransportInstance;
-    }
-
-    export interface TransportInstance extends TransportStatic, NodeJS.EventEmitter {
-        formatQuery(query:any): any;
-        normalizeQuery(options:QueryOptions): QueryOptions;
-        formatResults(results:any, options:any): any;
-        logException(msg:string, meta:any, callback:() => void): void;
-    }
-
-    export interface ContainerStatic {
-        new (options:LoggerOptions): ContainerInstance;
-    }
-
-    export interface ContainerInstance extends ContainerStatic {
-        get(id:string, options?:LoggerOptions): LoggerInstance;
-        add(id:string, options:LoggerOptions): LoggerInstance;
-        has(id:string): boolean;
-        close(id:string): void;
-        options: LoggerOptions;
-        loggers: any;
-        default: LoggerOptions;
-    }
-
-    export interface Transports {
-        File: TransportInstance;
-        Console: TransportInstance;
-        Loggly: TransportInstance;
-        DailyRotateFile: TransportInstance;
-        Http: TransportInstance;
-        Memory: TransportInstance;
-        Webhook: TransportInstance;
     }
 
     export interface TransportOptions {
-        level?: string;
-        silent?: boolean;
-        raw?: boolean;
-        name?: string;
-        handleExceptions?: boolean;
+        handleExceptions?:boolean;
+        json?:boolean
     }
 
-    export interface QueryOptions {
-        rows?: number;
-        limit?: number;
-        start?: number;
-        from?: Date;
-        until?: Date;
-        /**
-         * 'asc' or 'desc'
-         */
-        order?: string;
-        fields: any;
+    export interface ConsoleTransportOptions extends TransportOptions {
+        level?:string;
+        silent?:boolean;
+        colorize?:boolean;
+        timestamp?:boolean;
     }
 
-    export interface ProfileHandler {
-        logger: LoggerInstance;
-        start: Date;
-        done: (msg:string) => LoggerInstance;
+    export interface FileTransportOptions extends ConsoleTransportOptions {
+        filename:string;
+        maxsize:number;
+        maxFiles:number;
+        stream:any;
     }
 
+    export interface DailyRotateFileTransportOptions extends FileTransportOptions {
+        datePattern:string;
+    }
 
-    export var Log:LoggerInstance;
+    export interface HttpTransportOptions extends TransportOptions {
+        host:string;
+        port:number;
+        path:string;
+        auth:{username:string; password:string};
+        ssl:boolean;
+    }
+
+    export class Transport {
+        transportOptions:TransportOptions;
+
+        constructor(options:TransportOptions) {
+            this.transportOptions = options;
+        }
+    }
+
+    export class ConsoleTransport extends Transport {
+        constructor(options:ConsoleTransportOptions) {
+            super(options);
+        }
+    }
+
+    export class FileTransport extends Transport {
+        constructor(options:FileTransportOptions) {
+            super(options);
+        }
+    }
+
+    export class DailyRotateFileTransport extends Transport {
+        constructor(options:DailyRotateFileTransportOptions) {
+            super(options);
+        }
+    }
+
+    export class HttpTransport extends Transport {
+        constructor(options:HttpTransportOptions) {
+            super(options);
+        }
+    }
+
+    export interface LoggerOptions {
+        transports: Transport[];
+        exitOnError?: boolean;
+    }
 
 
     export class WinstonLogger {
 
         public createLogger(config:LoggerOptions) {
+            var transports:any[];
             var winston:any = require('winston');
-            OX.Log = new winston.Logger(config);
+
+            config.transports.forEach((t) => {
+                var transportsObj:any = null;
+                if (t instanceof ConsoleTransport) {
+                    transportsObj = new winston.transports.Console(t.transportOptions);
+                } else if (t instanceof FileTransport) {
+                    transportsObj = new winston.transports.File(t.transportOptions);
+                } else if (t instanceof DailyRotateFileTransport) {
+                    transportsObj = new winston.transports.DailyRotateFile(t.transportOptions);
+                } else if (t instanceof HttpTransport) {
+                    transportsObj = new winston.transports.Http(t.transportOptions);
+                }
+
+                if (transportsObj != null) {
+                    transports.push(transportsObj);
+                }
+            });
+
+            var options = {
+                transports: transports,
+                exitOnError: config.exitOnError
+            };
+
+            OX.Log = new winston.Logger(options);
         }
 
     }
+
+
+    export var Log:LoggerInstance;
 }
