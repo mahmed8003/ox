@@ -20,7 +20,7 @@ module OX {
                 return modelIns;
             }
 
-            var mClass = this.context.getModel(Model);
+            var mClass = this.context.getModel(model);
             if(mClass != undefined) {
                 modelIns = new mClass();
                 modelIns.init(this.context);
